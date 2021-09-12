@@ -2,6 +2,9 @@ import numpy as np
 import scipy.stats as stat
 import matplotlib.pyplot as plt
 
+#prac10
+
+
 #Functional form for power law
 def powerlaw(n,lam):
     zeta=np.sum(1.0/np.arange(a,b+1)**lam)

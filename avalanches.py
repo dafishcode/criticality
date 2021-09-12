@@ -1,6 +1,9 @@
 import admin_functions as adfn
 import IS as isfn
 
+#prac40
+
+
 
 #PROCESS
 #------------
@@ -150,7 +153,8 @@ def corrdis_bin(corr, dist, bins):
     unq = np.unique(dist_v)
     dist_vs = np.sort(dist_v)
     corr_vs = np.array([x for _,x in sorted(zip(dist_v,corr_v))])
-    window = adfn.window(np.int((unq.shape[0]/bins)), unq.shape[0])[0] #define a sliding window
+    res = len(unq)%bins
+    window = adfn.window(np.int((len(unq[:-res])/bins)), len(unq[:-res]))[0] 
 
     #Loop through each bin and calculate average distance/correlation
     count, bincount=0,0
@@ -677,4 +681,4 @@ def DCC(av):
     
     pred_beta = (dur_e - 1)/(size_e - 1)
     dcc = np.abs(fit_beta - pred_beta)
-    return(dcc)
+    return(dcc, size_e, dur_e)
