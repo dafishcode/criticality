@@ -2,7 +2,7 @@ import numpy as np
 import scipy.stats as stat
 import matplotlib.pyplot as plt
 
-#prac10
+#check1
 
 
 #Functional form for power law
