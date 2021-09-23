@@ -2,22 +2,27 @@ import numpy as np
 import scipy.stats as stat
 import matplotlib.pyplot as plt
 
-#prac10
 
 
-#Functional form for power law
+#========================================
 def powerlaw(n,lam):
+#========================================
     zeta=np.sum(1.0/np.arange(a,b+1)**lam)
     return(n**(-lam)/zeta)
 
-#Functional form for lognormal
+#========================================
 def lognormal(n,mu,sig):
+#========================================
     return(1.0/n/np.sqrt(2*np.pi*sig**2)*np.exp(-(np.log(n)-mu)**2/(2*sig**2)))
 
 
-#Calculate loglikelihood for power law given the data
-#Likelihoods across all random draws, given your data
+#========================================
 def LogLikelihood(lam, sizes, M, a, b):
+#========================================
+    """
+    Calculate loglikelihood for power law given the data
+    Likelihoods across all random draws, given your data
+    """
     #normalisation factor for all lambda draws - normalises a distribution to sum of probability = 1 (by summing across all possible values in density)
     zetamat=np.power.outer(1.0/np.arange(a,b+1),lam) #Matrix of normalisation constants for each lambda draw, at each size: each row =  size**-current lambda, for every size from max to min
     zeta=np.sum(zetamat,0) #Norm vector - for each lambda draw - sum of norm constants for entire size max-min range at each lambda
@@ -26,9 +31,13 @@ def LogLikelihood(lam, sizes, M, a, b):
     loglik=nprod+norm #Normalised loglikelihood
     return(loglik) 
 
-#Calculate loglikelihood for lognormal
-#Likelihoods across all random draws, given your data
+#=============================================
 def LogLikelihood_LN(mu,sig, sizes, M , a, b):
+#=============================================
+    """
+    Calculate loglikelihood for lognormal given the data
+    Likelihoods across all random draws, given your data
+    """
     T1 = -np.sum(np.log(sizes))
     T2_mat = np.subtract.outer(np.log(sizes),mu)**2
     T2 = -np.sum(T2_mat,0)/(2*sig**2)
@@ -36,10 +45,15 @@ def LogLikelihood_LN(mu,sig, sizes, M , a, b):
     loglik=T0+T1+T2
     return(loglik) 
 
-
-#IMPORTANCE SAMPLER - for power law - monte carlo sampling from two different distributions
-#OUTPUT - posterior average exponent, log marginal likelihood, effective sample size = how good is the sampler
+#=============================================
 def IS(npart, sizes, M, a, b):
+#=============================================
+
+    """
+    IMPORTANCE SAMPLER - for power law - monte carlo sampling from two different distributions
+    OUTPUT - posterior average exponent, log marginal likelihood, effective sample size = how good is the sampler
+    """
+
     lambda_sample=np.random.uniform(0.1,5,npart) #randomly sample lambda (exponent values)
 
     #Weights - loglikelihoods of your data for each lambda * (weight by) log probability of drawing each lambda sample from the prior, divided by log probability of drawing each lambda sample from the proposal
@@ -56,10 +70,18 @@ def IS(npart, sizes, M, a, b):
 
 #IMPORTANCE SAMPLER - for lognormal - monte carlo sampling from two different distributions
 #OUTPUT - posterior average exponent, log marginal likelihood, effective sample size = how good is the sampler
+#=============================================
 def IS_LN(npart, sizes, M, a, b):
+#=============================================
+
+    """
+    IMPORTANCE SAMPLER - for lognormal - monte carlo sampling from two different distributions
+    OUTPUT - posterior average exponent, log marginal likelihood, effective sample size = how good is the sampler
+    """
+
     mu_sample = np.random.uniform(-2.0,2.0,npart) #randomly sample mu
     sig_sample = np.random.uniform(0.1,5.0,npart) #randomly sample sigma
-    weights=LogLikelihood_LN(mu_sample,sig_sample, sizes, M, a, b) #Add in prior + proposal?
+    weights=LogLikelihood_LN(mu_sample,sig_sample, sizes, M, a, b) 
     maxw=np.max(weights)
     w2 = np.exp(weights-maxw)
     w2_sum = np.sum(w2)
@@ -71,16 +93,20 @@ def IS_LN(npart, sizes, M, a, b):
     marglik = maxw + np.log(np.sum(np.exp(weights-maxw)))-np.log(npart)
     return([mean_mu,mean_sig, marglik,  LogLikelihood_LN(mu_sample, sig_sample, sizes, M, a, b), ESS])
 
-#find entire posterior dsitr - posterior distribution - range of values 
+#=============================================
 def plot_samples(npart):
+#=============================================
     lambda_sample=np.random.uniform(0.1,5,npart)
     weights=LogLikelihood(lambda_sample)
     maxw=np.max(weights)
     w2 = np.exp(weights-maxw)
     plt.hist(lambda_sample,weights=w2,bins=np.linspace(2.5,2.8))
     plt.show()
-
+    
+#=============================================
 def plotcomp(lam,mu,sig):
+#=============================================
+
     x = np.linspace(a,b,40) 
     plt.hist(sizes,40,log=True,density=True)
     plt.plot(x,powerlaw(x,lam))
