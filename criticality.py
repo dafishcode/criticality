@@ -281,17 +281,13 @@ def DCC(av):
         
     Returns:
         dcc (float): DCC value
-        size_e (float): max likelihood values for avalanche exponent for size
-        dur_e (float): max likelihood values for avalanche exponent for duration
-    
+
     """
     from matplotlib import pyplot as plt
     import numpy as np
     av_size = av[0]
     av_dur = av[1]
-    ml = marglik_power_loglik(av, 2000)
-    size_e = ml[0][0]
-    dur_e = ml[1][0]
+    size_e, dur_e = power_exponent(av, 2000)
     fig, axarr = plt.subplots(figsize = (7,5))
     av_size = av_size
     av_dur = (1/2.73)*av_dur
@@ -309,7 +305,7 @@ def DCC(av):
     
     pred_beta = (dur_e - 1)/(size_e - 1)
     dcc = np.abs(fit_beta - pred_beta)
-    return(dcc, size_e, dur_e)
+    return(dcc)
 
 
 
