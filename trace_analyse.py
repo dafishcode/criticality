@@ -52,6 +52,10 @@ class trace_analyse:
         #print('Correlation function calculated')
         
         return(self)
+    
+    
+    
+    
         
     
 #================================================
