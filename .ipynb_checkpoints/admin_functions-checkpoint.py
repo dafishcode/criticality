@@ -1,6 +1,60 @@
 #SORT
 #=============================
 #=============================
+    
+
+#=============================
+def list_series(length, num):
+#=============================
+    
+    """
+    This function creates a series of empty lists of the same dimension.
+    
+    
+    Inputs:
+        length (int): length of each empty list
+        num (int): number of lists
+        
+    returns:
+        out_l (list of list): list of list
+    
+    """
+    
+    out_l = [0]*num
+
+    for x,n in enumerate(range(num)):
+        out_l[x] = [0]*length
+    return(out_l)
+
+
+
+#=============================
+def h5_2dict(data):
+#=============================
+    """
+    This function converts h5 files into a dictionary by looping through all keys. 
+    
+    
+    Inputs:
+        data (h5): h5 file
+        
+    returns:
+        d (dict): dictionary
+    
+    """
+    
+    import h5py
+    import numpy as np
+    h5read = h5py.File(data, 'r')
+    par_l = np.array(h5read)
+    d = {}
+    for i in par_l:
+        d.update({i: np.array(h5read[i])})
+        
+    return(d)
+
+
+
 
 #=========================================
 def return_files(path, experiment, search):
@@ -216,6 +270,58 @@ def load_list(inp_list):
 #=============================
 #==============================
 
+#===============================
+def par_save_name(name, par):
+#===============================
+
+    
+    """
+    This function saves name with a parameter, placing it before run.
+    """
+    
+    pref = name[:name.find('run')]
+    run = name[name.find('run'):name.find('run')+6]
+    return(pref + par + run)
+
+
+#================================================
+def select_region(trace, coord, region):
+#================================================
+    
+    """
+    This function slices data to include only those within a specific brain region.
+
+    Inputs:
+        trace (np array): cells x timepoints, raw or normalised fluorescence values
+        coord (np array): cells x XYZ coordinates and labels
+        region (str): 'all', 'Diencephalon', 'Midbrain', 'Hindbrain' or 'Telencephalon'
+    
+    Returns:
+        sub_trace (np array): cells x timepoints, raw or normalised fluorescence values for subregion
+        sub_coord (np array): cells x XYZ coordinates for subregion
+    
+    """
+    
+    import numpy as np
+
+    if coord.shape[0] != trace.shape[0]:
+        print('Trace and coordinate data not same shape')
+        return()
+
+
+    if region == 'all':
+        locs = np.where(coord[:,4] != 'nan')
+
+    else: 
+        locs = np.where(coord[:,4] == region)
+
+    sub_coord = coord[locs]
+
+    sub_trace = trace[locs]
+
+
+    return(sub_trace,sub_coord)
+
 #============================================
 def save_shared_files(path, son_path, mode):
 #============================================
@@ -225,7 +331,7 @@ def save_shared_files(path, son_path, mode):
     Inputs:
     path (string): name of parent path
     son_path (string): name of code folder 
-    mode (string): define which file to save: 'admin', criticality' or 'lce'
+    mode (string): define which file to save: 'admin', 'criticality', 'lce', or 'trace'
     
     """
 
@@ -256,6 +362,10 @@ def save_shared_files(path, son_path, mode):
     if mode == 'lce':
         file_list = return_files(path , son_path, 'LCE.py' ) #search for LCE file in current directory
         path_list = ['empirical_dynamic_modelling', 'seizure_dynamics'] #CHANGE AS NEEDED!
+        
+    if mode == 'trace':
+        file_list = return_files(path , son_path, 'trace_analyse.py' ) #search for trace_analyse file in current directory
+        path_list = ['criticality', 'avalanche_model', 'plasticity_model', 'mutant_analysis'] #CHANGE AS NEEDED!
         
         
     loop_dir(file_list, path_list) 
@@ -424,6 +534,7 @@ def timeprint(per, r, numrows, name):
 #MATHS
 #=============================
 #=============================
+
 
 #=======================================================================================
 def window(size, times): #make window of given size that is divisible by time series
