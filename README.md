@@ -16,7 +16,9 @@ Repo contains code for algorithms which calculate the spatiotemporal propagation
 
 'criticality.py' - module for the estimation of avalanches and calculation of critical statistics
 
-'trace_analyse.py' - classes for running multiple analyses on datasets
+'trace_analyse.py' - module containing classes and functions for the analysis of single cell and population firing statistics
+
+
 
 
 ### Notebooks
