@@ -388,7 +388,7 @@ def corrdist(corr, dist, n_bins, mini, maxi):
     # Convert all negative correlations to 0
     corr_v = [0 if o < 0 else o for o in corr_v]
     corr_v = np.array(corr_v)
-    dist_v[np.where(corr_v == 0)] = 0 #Convert all negativ correlations to 0s in distance matrix
+    dist_v[np.where(corr_v == 0)] = 0 #Convert all negative correlations to 0s in distance matrix
 
     # Order by distances
     unq = np.unique(dist_v)
@@ -412,27 +412,49 @@ def corrdist(corr, dist, n_bins, mini, maxi):
     return(output)
 
 #=======================================================================
-def mean_av(curr_l):
+def mean_av(data_l, bins, choose):
 #=======================================================================
     """
-    This function takes a list of avalanche files and groupseach avalanche distribution
-    into one big distribution.
+    This function takes a list of avalanche files and finds the average histogram for the distribution across all files. 
     
     Inputs:
-        curr_l (list): list of files to group together
+        data_l (list of str): list of files to group together
+        bins (int): number of bins
+        choose (str): 'size' or 'dur'
+
         
     Returns:
-        size_l (list): list of all avalanche sizes from all datasets
-        dur_l (list): list of all avalanche durations from all datasets
+        yaxis (list): list of each yaxis bin - probability
+        xaxis (list): list of each xaxis bin - avalanches
 
     """
     import numpy as np
+    import matplotlib
+    from matplotlib import pyplot as plt
+
     
-    size_l = []
-    dur_l = []
-    for i in range(len(curr_l)):
-        data = np.load(curr_l[i], allow_pickle=True).item()
-        av = data['av']
-        size_l = np.append(size_l, data['av'][0])
-        dur_l = np.append(dur_l, data['av'][1])
-    return(size_l, dur_l)
+    if choose == 'size':
+        num = 0
+    if choose == 'dur':
+        num = 1
+    #Load all av data in a list
+    dist_l = [np.load(data_l[i], allow_pickle=True).item()['av'][num] for i in range(len(data_l))]
+    av_l = []
+    #Append all together
+    for i in range(len(dist_l)): av_l = np.append(av_l, dist_l[i]) 
+        
+    hist_l = list(range(len(dist_l)))
+    #Find max and min for binning
+    mini, maxi = np.min(av_l), np.max(av_l)
+    fig, axarr = plt.subplots(figsize = (7,5))
+
+    
+    #Put each into histogram with same binning
+    for i in range(len(dist_l)):    
+        hist_l[i] = axarr.hist(dist_l[i], bins=bins, range = (mini, maxi), density=True, histtype='step', linewidth = 3, cumulative=-1, color = 'k')[0]
+    yaxis = axarr.hist(dist_l[0], bins=bins, range = (mini, maxi), density=True, histtype='step', linewidth = 3, cumulative=-1, color = 'k')[1][:bins]
+    plt.close(fig) 
+    
+    #Find mean across xbins
+    xaxis = np.mean(hist_l, axis= 0)
+    return(yaxis, xaxis)
