@@ -6,7 +6,7 @@ Repo contains code for algorithms which calculate the spatiotemporal propagation
 * the calculation of criticality statistics
 
 ## What does this repo contain?
-* Modules contain functions which for avalanche and criticality analyses
+* Modules contain functions for avalanche and criticality analyses
 * Accompanying ipynotebooks demonstrate how to use the modules
 
 ### Modules
